@@ -58,7 +58,7 @@ export const DefaultConfig: MergedConfig = {
     },
     {
       name: "wallet",
-      enabled: true,
+      enabled: false,
     },
     {
       name: "payout",
