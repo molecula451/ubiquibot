@@ -66,11 +66,11 @@ export const DefaultConfig: MergedConfig = {
     },
     {
       name: "multiplier",
-      enabled: true,
+      enabled: false,
     },
     {
       name: "query",
-      enabled: true,
+      enabled: false,
     },
     {
       name: "ask",
