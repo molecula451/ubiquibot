@@ -61,69 +61,6 @@ export interface Database {
         };
         Relationships: [];
       };
-      issues: {
-        Row: {
-          assignees: string[] | null;
-          closed_at: string | null;
-          comments_url: string;
-          completed_at: string | null;
-          created_at: string | null;
-          events_url: string;
-          id: number;
-          issue_number: number;
-          issue_url: string;
-          labels: string[] | null;
-          price: string | null;
-          priority: string | null;
-          recipient: string | null;
-          started_at: string | null;
-          status: Database["public"]["Enums"]["issue_status"];
-          timeline: string | null;
-          txhash: string[] | null;
-          updated_at: string | null;
-        };
-        Insert: {
-          assignees?: string[] | null;
-          closed_at?: string | null;
-          comments_url: string;
-          completed_at?: string | null;
-          created_at?: string | null;
-          events_url: string;
-          id?: number;
-          issue_number: number;
-          issue_url: string;
-          labels?: string[] | null;
-          price?: string | null;
-          priority?: string | null;
-          recipient?: string | null;
-          started_at?: string | null;
-          status?: Database["public"]["Enums"]["issue_status"];
-          timeline?: string | null;
-          txhash?: string[] | null;
-          updated_at?: string | null;
-        };
-        Update: {
-          assignees?: string[] | null;
-          closed_at?: string | null;
-          comments_url?: string;
-          completed_at?: string | null;
-          created_at?: string | null;
-          events_url?: string;
-          id?: number;
-          issue_number?: number;
-          issue_url?: string;
-          labels?: string[] | null;
-          price?: string | null;
-          priority?: string | null;
-          recipient?: string | null;
-          started_at?: string | null;
-          status?: Database["public"]["Enums"]["issue_status"];
-          timeline?: string | null;
-          txhash?: string[] | null;
-          updated_at?: string | null;
-        };
-        Relationships: [];
-      };
       users: {
         Row: {
           bio: string | null;
@@ -196,26 +133,20 @@ export interface Database {
       wallets: {
         Row: {
           created_at: string | null;
-          multiplier: number | null;
-          reason: string | null;
+          id: number;
           updated_at: string | null;
-          user_name: string;
           wallet_address: string | null;
         };
         Insert: {
           created_at?: string | null;
-          multiplier?: number | null;
-          reason?: string | null;
+          id: number;
           updated_at?: string | null;
-          user_name: string;
           wallet_address?: string | null;
         };
         Update: {
           created_at?: string | null;
-          multiplier?: number | null;
-          reason?: string | null;
+          id?: number;
           updated_at?: string | null;
-          user_name?: string;
           wallet_address?: string | null;
         };
         Relationships: [];

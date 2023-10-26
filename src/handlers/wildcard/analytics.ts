@@ -1,4 +1,4 @@
-import { getMaxIssueNumber, upsertIssue, upsertUser } from "../../adapters/supabase";
+import { upsertUser } from "../../adapters/supabase";
 import { getBotConfig, getLogger } from "../../bindings";
 import { listIssuesForRepo, getUser, calculateWeight } from "../../helpers";
 import { Issue, IssueType, User, UserProfile } from "../../types";
@@ -50,7 +50,6 @@ export const collectAnalytics = async (): Promise<void> => {
     return;
   }
   logger.info("Collecting analytics information...");
-  const maximumIssueNumber = await getMaxIssueNumber();
 
   let fetchDone = false;
   const perPage = 30;
@@ -84,24 +83,6 @@ export const collectAnalytics = async (): Promise<void> => {
     );
 
     await Promise.all(userProfilesToUpsert.map((i) => upsertUser(i)));
-
-    // No need to update the record for the bounties already closed
-    const bountiesToUpsert = bounties.filter((bounty) => (bounty.state === IssueType.CLOSED ? bounty.number > maximumIssueNumber : true));
-    logger.info(`Upserting bounties: ${bountiesToUpsert.map((i) => i.title).toString()}`);
-    await Promise.all(
-      bountiesToUpsert.map((i) => {
-        const additions = bountyInfo(i as Issue);
-        if (additions.timelabel && additions.priorityLabel && additions.priceLabel)
-          return upsertIssue(i as Issue, {
-            labels: {
-              timeline: additions.timelabel,
-              priority: additions.priorityLabel,
-              price: additions.priceLabel,
-            },
-          });
-        return undefined;
-      })
-    );
 
     if (issues.length < perPage) fetchDone = true;
     else curPage++;

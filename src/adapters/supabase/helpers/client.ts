@@ -24,20 +24,6 @@ export const supabase = (url: string, key: string): SupabaseClient => {
 };
 
 /**
- * @dev Gets the maximum issue number stored in `issues` table
- */
-export const getMaxIssueNumber = async (): Promise<number> => {
-  const { supabase } = getAdapters();
-
-  const { data } = await supabase.from("issues").select("issue_number").order("issue_number", { ascending: false }).limit(1).single();
-  if (data) {
-    return Number(data.issue_number);
-  } else {
-    return 0;
-  }
-};
-
-/**
  * @dev Gets the last weekly update timestamp
  */
 export const getLastWeeklyTime = async (): Promise<Date | undefined> => {
@@ -134,39 +120,6 @@ const getDbDataFromUserProfile = (userProfile: UserProfile, additions?: UserProf
     updated_at: userProfile.updated_at,
   };
 };
-/**
- * Performs an UPSERT on the issues table.
- * @param issue The issue entity fetched from github event.
- */
-export const upsertIssue = async (issue: Issue, additions: IssueAdditions): Promise<void> => {
-  const logger = getLogger();
-  const { supabase } = getAdapters();
-  const { data, error } = await supabase.from("issues").select("id").eq("issue_number", issue.number);
-  if (error) {
-    logger.error(`Checking issue failed, error: ${JSON.stringify(error)}`);
-    throw new Error(`Checking issue failed, error: ${JSON.stringify(error)}`);
-  }
-
-  if (data && data.length > 0) {
-    const key = data[0].id as number;
-    const { data: _data, error: _error } = await supabase
-      .from("issues")
-      .upsert({ id: key, ...getDbDataFromIssue(issue, additions) })
-      .select();
-    if (_error) {
-      logger.error(`Upserting an issue failed, error: ${JSON.stringify(_error)}`);
-      throw new Error(`Upserting an issue failed, error: ${JSON.stringify(_error)}`);
-    }
-    logger.info(`Upserting an issue done, { data: ${_data}, error: ${_error}`);
-  } else {
-    const { data: _data, error: _error } = await supabase.from("issues").insert(getDbDataFromIssue(issue, additions));
-    if (_error) {
-      logger.error(`Creating a new issue record failed, error: ${JSON.stringify(_error)}`);
-      throw new Error(`Creating a new issue record failed, error: ${JSON.stringify(_error)}`);
-    }
-    logger.info(`Creating a new issue record done, { data: ${_data}, error: ${_error}`);
-  }
-};
 
 /**
  * Performs an UPSERT on the users table.
@@ -203,7 +156,7 @@ export const upsertUser = async (user: UserProfile): Promise<void> => {
  * @param username The user name you want to upsert a wallet address for
  * @param address The account address
  */
-export const upsertWalletAddress = async (username: string, address: string): Promise<void> => {
+export const upsertWalletAddress = async (username: string, address: string, user_id: number): Promise<void> => {
   const logger = getLogger();
   const { supabase } = getAdapters();
 
@@ -215,9 +168,10 @@ export const upsertWalletAddress = async (username: string, address: string): Pr
 
   if (data && data.length > 0) {
     const { data: _data, error: _error } = await supabase.from("wallets").upsert({
-      user_name: username,
-      wallet_address: address,
+      id: user_id,
       updated_at: new Date().toUTCString(),
+      wallet_address: address,
+      user_name: username,
     });
     if (_error) {
       logger.error(`Upserting a wallet address failed, error: ${JSON.stringify(_error)}`);
@@ -226,10 +180,11 @@ export const upsertWalletAddress = async (username: string, address: string): Pr
     logger.info(`Upserting a wallet address done, { data: ${JSON.stringify(_data)} }`);
   } else {
     const { error } = await supabase.from("wallets").insert({
-      user_name: username,
-      wallet_address: address,
+      id: user_id,
       created_at: new Date().toUTCString(),
       updated_at: new Date().toUTCString(),
+      wallet_address: address,
+      user_name: username,
     });
     if (error) {
       logger.error(`Creating a new wallet_table record failed, error: ${JSON.stringify(error)}`);
